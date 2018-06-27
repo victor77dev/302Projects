@@ -57,18 +57,19 @@ class Header extends React.Component { // eslint-disable-line react/prefer-state
     this.setState({ anchorEl: null });
   };
 
-  goToPage = (page) => {
-    this.props.history.push(page);
+  goToPath = (path) => {
+    this.handleMenuClose();
+    this.props.history.push(path);
   }
 
-  goToPage = this.goToPage('/');
+  goToHome = this.goToPath.bind(this, '/');
 
   addButtons = (list) => {
     const buttonList = list.map((button) => {
       if (button === 'Home') {
         return <MenuItem key="Home" onClick={this.goToHome}>Home</MenuItem>;
       }
-      return <MenuItem key={button} onClick={() => console.log(button)}>{button}</MenuItem>;
+      return <MenuItem key={button} onClick={() => { console.log(button); this.handleMenuClose(); }}>{button}</MenuItem>;
     });
     return buttonList;
   }
@@ -76,22 +77,28 @@ class Header extends React.Component { // eslint-disable-line react/prefer-state
   render() {
     const { anchorEl } = this.state;
     const { classes, history } = this.props;
-    const buttons = ['Home', 'Testing'];
+    const buttons = ['Home', 'About'];
     return (
       <MuiThemeProvider theme={theme}>
         <AppBar>
           <Toolbar>
-            <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
-              <MenuIcon onClick={this.handleMenuClick} />
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={this.handleMenuClose}
-                className={classes.menu}
-              >
-                {this.addButtons(buttons)}
-              </Menu>
+            <IconButton
+              onClick={this.handleMenuClick}
+              aria-haspopup="true"
+              className={classes.menuButton}
+              color="inherit"
+              aria-label="Menu"
+            >
+              <MenuIcon />
             </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={this.handleMenuClose}
+              className={classes.menu}
+            >
+              {this.addButtons(buttons)}
+            </Menu>
             <Typography variant="title" color="inherit">
               ReLinks
             </Typography>

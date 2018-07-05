@@ -99,7 +99,7 @@ class Header extends React.Component { // eslint-disable-line react/prefer-state
             >
               {this.addButtons(buttons)}
             </Menu>
-            <Typography variant="title" color="inherit">
+            <Typography variant="title" color="inherit" onClick={this.goToHome}>
               ReLinks
             </Typography>
             <SearchBoxContainer theme={theme} history={history} />

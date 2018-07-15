@@ -46,10 +46,10 @@ export default function App() {
   return (
     <AppWrapper>
       <Helmet
-        titleTemplate="%s - ReLinks"
-        defaultTitle="ReLinks"
+        titleTemplate="%s - 302 Projects"
+        defaultTitle="302 Projects"
       >
-        <meta name="description" content="ReLinks - Found out Related Links between papers" />
+        <meta name="description" content="302 Projects - Found Projects" />
       </Helmet>
       <Route component={Header} />
       <Grid container justify="center" style={styles.mainApp}>

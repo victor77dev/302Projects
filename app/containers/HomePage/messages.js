@@ -8,10 +8,10 @@ import { defineMessages } from 'react-intl';
 export default defineMessages({
   header: {
     id: 'app.components.HomePage.header',
-    defaultMessage: 'Welcome to ReLinks!',
+    defaultMessage: 'Welcome to 302 Projects!',
   },
   content: {
     id: 'app.components.HomePage.content',
-    defaultMessage: 'You can search Related Papers up there!',
+    defaultMessage: 'You can search Found Projects up there!',
   },
 });

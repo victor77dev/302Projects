@@ -1,7 +1,7 @@
 {
-  "name": "relinks-client",
+  "name": "302projects",
   "version": "1.0.0",
-  "description": "ReLinks client",
+  "description": "302 Projects (Found Projects) client",
   "repository": {},
   "engines": {
     "npm": ">=3",

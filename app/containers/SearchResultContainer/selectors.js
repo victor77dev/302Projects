@@ -14,6 +14,11 @@ const selectSearchBoxContainerDomain = (state) => state.get('searchBoxContainer'
  * Default selector used by SearchResultContainer
  */
 
+const makeSelectSearchText = () => createSelector(
+  selectSearchBoxContainerDomain,
+  (searchBoxState) => searchBoxState.get('text')
+);
+
 const makeSelectSearchResult = () => createSelector(
   selectSearchBoxContainerDomain,
   (searchBoxState) => searchBoxState.get('searchResult')
@@ -25,6 +30,7 @@ const makeSelectSearchError = () => createSelector(
 );
 
 export {
+  makeSelectSearchText,
   makeSelectSearchResult,
   makeSelectSearchError,
 };

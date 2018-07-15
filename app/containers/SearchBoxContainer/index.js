@@ -22,11 +22,11 @@ import saga from './saga';
 export class SearchBoxContainer extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   onChange = this.props.onChangeText;
   onKeyPress = (event) => {
-    const { history, callSearchPaper } = this.props;
+    const { history, callSearchPaper, text } = this.props;
     if (event.key === 'Enter') {
-      callSearchPaper(this.props.text);
+      callSearchPaper(text);
       if (history) {
-        history.push('/searchResult');
+        history.push(`/searchResult/${text}`);
       }
     }
   }

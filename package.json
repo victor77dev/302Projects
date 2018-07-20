@@ -2,6 +2,7 @@
   "name": "302projects",
   "version": "1.0.0",
   "description": "302 Projects (Found Projects) client",
+  "homepage": "http://victor77dev.github.io/302projects",
   "repository": {},
   "engines": {
     "npm": ">=3",
@@ -39,7 +40,9 @@
     "test:clean": "rimraf ./coverage",
     "test": "cross-env NODE_ENV=test jest --coverage",
     "test:watch": "cross-env NODE_ENV=test jest --watchAll",
-    "coveralls": "cat ./coverage/lcov.info | coveralls"
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "lint-staged": {
     "*.js": "lint:eslint"
@@ -218,6 +221,7 @@
     "cross-env": "5.0.0",
     "express": "4.15.3",
     "fontfaceobserver": "2.0.9",
+    "gh-pages": "^1.2.0",
     "history": "4.6.3",
     "hoist-non-react-statics": "2.1.1",
     "immutable": "3.8.1",

@@ -10,11 +10,15 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
+import Graph from 'components/Graph';
+
 import messages from './messages';
 
 export default class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render() {
+    const { match } = this.props;
     return (
       <div>
         <h1>
@@ -23,7 +27,12 @@ export default class HomePage extends React.PureComponent { // eslint-disable-li
         <h4>
           <FormattedMessage {...messages.content} />
         </h4>
+        <Graph match={match} />
       </div>
     );
   }
 }
+
+HomePage.propTypes = {
+  match: PropTypes.object,
+};

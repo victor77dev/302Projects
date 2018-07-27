@@ -301,9 +301,82 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
       const edgesArray = this.createEdges(newTagNodes, newSelectedProjectNodes);
       edges.add(edgesArray);
     }
+    // Handle click for 'More Project' Node
     if (selectedNodes.length === 1 && selectedNodes[0].match(/^More_Projects/)) {
       this.addMoreProjectNodes(selectedNodes[0]);
     }
+    if (selectedNodes.length === 1 && selectedNodes[0].match(/^Tag_/)) {
+      this.createNodesEdges('tag', selectedNodes[0].replace(/^Tag_/, ''));
+    }
+  }
+
+  swapTagNode(nodeId, newIndex) {
+    const { allTagNodes } = this.state;
+    let oldIndex = 0;
+    for (let i = 0; i < allTagNodes.length; i += 1) {
+      if (allTagNodes[i].id === nodeId) {
+        oldIndex = i;
+        break;
+      }
+    }
+    [allTagNodes[newIndex], allTagNodes[oldIndex]] = [allTagNodes[oldIndex], allTagNodes[newIndex]];
+    this.state.allTagNodes = allTagNodes;
+  }
+
+  showTagNode(nodeId) {
+    this.swapTagNode(nodeId, 0);
+  }
+
+  createNodesEdges(type = null, target = null) {
+    let { moreTagNode, selectedTagNodes, selectedProjectNodes } = this.state;
+    let { nodes, edges } = this.state;
+    let showTag = 7;
+    let showProject = 7;
+    if (target !== null && type !== null) {
+      if (type === 'tag') {
+        this.showTagNode(`Tag_${target}`);
+        showTag = 1;
+        showProject = 20;
+      }
+    }
+    // Pick tag nodes
+    // Reset selectedTagNodes, moreProjectNodes, moreProjectEdges, etc...
+    this.state.existProjectIds = {};
+    this.state.selectedTagNodes = [];
+    this.state.selectedProjectNodes = [];
+    this.state.createdEdgeIds = [];
+    this.state.noOfProjects = {};
+    this.state.moreTagNode = {};
+    this.state.moreProjectNodes = [];
+    this.state.moreProjectEdges = [];
+    if (nodes) nodes.clear();
+    if (edges) edges.clear();
+
+    selectedTagNodes = [...this.pickTagNodes(showTag)];
+    this.state.selectedTagNodes = selectedTagNodes;
+
+    selectedProjectNodes = [...this.createProjectNodes(selectedTagNodes, showProject)];
+    this.state.selectedProjectNodes = selectedProjectNodes;
+    moreTagNode = this.createMoreTagNode();
+    this.state.moreTagNode = moreTagNode;
+
+    let nodesArray = [...selectedProjectNodes, ...selectedTagNodes, moreTagNode];
+    if (!nodes) nodesArray = [...nodesArray, ...this.state.moreProjectNodes];
+    // Create edges
+    let edgesArray = [...this.createEdges(selectedTagNodes, selectedProjectNodes)];
+    if (!edges) edgesArray = [...edgesArray, ...this.state.moreProjectEdges];
+
+    if (nodes) {
+      nodes.add(nodesArray);
+    } else {
+      nodes = new vis.DataSet(nodesArray);
+    }
+    if (edges) {
+      edges.add(edgesArray);
+    } else {
+      edges = new vis.DataSet(edgesArray);
+    }
+    return { nodes, edges };
   }
 
   graphStabilized() {
@@ -404,24 +477,12 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
     // Graph data
     // Create nodes and tag nodes are added later to make sure they are on top
-    let { network, nodes, edges, moreTagNode, selectedTagNodes, selectedProjectNodes } = this.state;
+    let { network, nodes, edges } = this.state;
     this.state.allTagNodes = this.createTagNodes();
 
-    // Pick tag nodes
-    selectedTagNodes = [...selectedTagNodes, ...this.pickTagNodes()];
-    this.state.selectedTagNodes = selectedTagNodes;
-
-    selectedProjectNodes = [...selectedProjectNodes, ...this.createProjectNodes(selectedTagNodes)];
-    this.state.selectedProjectNodes = selectedProjectNodes;
-    moreTagNode = this.createMoreTagNode();
-    this.state.moreTagNode = moreTagNode;
-
-    const nodesArray = [...selectedProjectNodes, ...selectedTagNodes, moreTagNode, ...this.state.moreProjectNodes];
-    // Create edges
-    const edgesArray = [...this.createEdges(selectedTagNodes, selectedProjectNodes), ...this.state.moreProjectEdges];
-
-    nodes = new vis.DataSet(nodesArray);
-    edges = new vis.DataSet(edgesArray);
+    const nodesEdges = this.createNodesEdges();
+    nodes = nodesEdges.nodes;
+    edges = nodesEdges.edges;
     this.state.nodes = nodes;
     this.state.edges = edges;
 

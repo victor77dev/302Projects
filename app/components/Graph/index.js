@@ -119,7 +119,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   // Create and pick project nodes for picked tag nodes
-  createProjectNodes(tagNodes, max = 7) {
+  createProjectNodes(tagNodes, max = 7, specificProjects = []) {
     const { tags, projects } = projectData;
     const { existProjectIds, noOfProjects } = this.state;
     const relatedProjectNodes = tagNodes.reduce((projectList, tagNode) => {
@@ -134,9 +134,12 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
       } else {
         this.removeMoreProjectNode(tagKey);
       }
-      // Only get the first 'max' projects
-      tagProjectList.slice(currProjectNo, noOfProjects[tagKey]).forEach((projectId) => {
+      // Only get the first 'max' projects if specificProjects is not empty
+      const listStart = specificProjects.length > 0 ? 0 : currProjectNo;
+      const listEnd = specificProjects.length > 0 ? tagProjectList.length : noOfProjects[tagKey];
+      tagProjectList.slice(listStart, listEnd).forEach((projectId) => {
         if (!updateProjectList.exist[projectId]) {
+          if (specificProjects.length > 0 && specificProjects.indexOf(projectId) === -1) return false;
           const image = imageList[projectId];
           const name = projects[projectId].name;
           const hoverLayout = ReactDOMServer.renderToStaticMarkup(<HoverLayout type="Project" name={name} image={image} />);
@@ -159,6 +162,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
           );
         }
         updateProjectList.exist[projectId] = true;
+        return true;
       });
       return updateProjectList;
     }, { exist: existProjectIds, list: [] });
@@ -305,6 +309,9 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     if (selectedNodes.length === 1 && selectedNodes[0].match(/^More_Projects/)) {
       this.addMoreProjectNodes(selectedNodes[0]);
     }
+    if (selectedNodes.length === 1 && selectedNodes[0].match(/^Project_/)) {
+      this.createNodesEdges('project', selectedNodes[0].replace(/^Project_/, ''));
+    }
     if (selectedNodes.length === 1 && selectedNodes[0].match(/^Tag_/)) {
       this.createNodesEdges('tag', selectedNodes[0].replace(/^Tag_/, ''));
     }
@@ -327,18 +334,25 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     this.swapTagNode(nodeId, 0);
   }
 
+  showProjectNode(nodeId) {
+    const { projects } = projectData;
+    const projectKey = nodeId.replace(/^Project_/, '');
+    const tagList = projects[projectKey].tags;
+    tagList.forEach((tagKey, index) => {
+      this.swapTagNode(`Tag_${tagKey}`, index);
+    });
+    const tagNode = this.pickTagNodes(1);
+    const projectNode = this.createProjectNodes(tagNode, 1, [projectKey]);
+    const showTag = tagList.length;
+    return { showTag, projectNode };
+  }
+
   createNodesEdges(type = null, target = null) {
     let { moreTagNode, selectedTagNodes, selectedProjectNodes } = this.state;
     let { nodes, edges } = this.state;
+    let projectNode = {};
     let showTag = 7;
     let showProject = 7;
-    if (target !== null && type !== null) {
-      if (type === 'tag') {
-        this.showTagNode(`Tag_${target}`);
-        showTag = 1;
-        showProject = 20;
-      }
-    }
     // Pick tag nodes
     // Reset selectedTagNodes, moreProjectNodes, moreProjectEdges, etc...
     this.state.existProjectIds = {};
@@ -352,6 +366,19 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     if (nodes) nodes.clear();
     if (edges) edges.clear();
 
+    if (target !== null && type !== null) {
+      if (type === 'tag') {
+        this.showTagNode(`Tag_${target}`);
+        showTag = 1;
+        showProject = 20;
+      } else if (type === 'project') {
+        const targetProjectNode = this.showProjectNode(`Project_${target}`);
+        projectNode = targetProjectNode.projectNode;
+        showTag = targetProjectNode.showTag;
+        showProject = 0;
+      }
+    }
+
     selectedTagNodes = [...this.pickTagNodes(showTag)];
     this.state.selectedTagNodes = selectedTagNodes;
 
@@ -362,6 +389,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
     let nodesArray = [...selectedProjectNodes, ...selectedTagNodes, moreTagNode];
     if (!nodes) nodesArray = [...nodesArray, ...this.state.moreProjectNodes];
+    if (projectNode) nodesArray = [...nodesArray, ...projectNode];
     // Create edges
     let edgesArray = [...this.createEdges(selectedTagNodes, selectedProjectNodes)];
     if (!edges) edgesArray = [...edgesArray, ...this.state.moreProjectEdges];

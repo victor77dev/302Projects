@@ -21,6 +21,7 @@ import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import SearchResultContainer from 'containers/SearchResultContainer/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
+import ProjectDetails from 'components/ProjectDetails';
 
 import Grid from '@material-ui/core/Grid';
 
@@ -37,7 +38,7 @@ const styles = {
   mainApp: {
     marginRight: 'auto',
     marginLeft: 'auto',
-    display: 'block',
+    display: 'flex',
     paddingTop: 68,
   },
 };
@@ -55,7 +56,8 @@ export default function App() {
       <Grid container justify="center" style={styles.mainApp}>
         <Route path="/*" component={HomePage} />
         <Switch>
-          <Route path="/" />
+          <Route exact path="/" />
+          <Route exact path="/project/:projectKey" component={ProjectDetails} />
           <Route exact path="/searchResult" component={SearchResultContainer} />
           <Route component={NotFoundPage} />
         </Switch>

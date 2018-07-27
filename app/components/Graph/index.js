@@ -39,6 +39,7 @@ HoverLayout.propTypes = {
 class Graph extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   state = {
     targetNode: this.props.match.url,
+    showProjectPath: null,
     existProjectIds: {},
     network: null,
     nodes: null,
@@ -354,6 +355,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     const tagNode = this.pickTagNodes(1);
     const projectNode = this.createProjectNodes(tagNode, 1, [projectKey]);
     const showTag = tagList.length;
+    this.state.showProjectPath = `/project/${projectKey}`;
     return { showTag, projectNode };
   }
 
@@ -418,7 +420,8 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   graphStabilized() {
-    const { network, selectedTagNodes, selectedProjectNodes, moreTagNode, graphUpdate } = this.state;
+    const { history } = this.props;
+    const { network, selectedTagNodes, selectedProjectNodes, moreTagNode, graphUpdate, showProjectPath } = this.state;
     const allTagNodesId = [...selectedTagNodes, ...selectedProjectNodes, moreTagNode].map((data) => data.id);
     if (graphUpdate) {
       network.fit({
@@ -426,6 +429,10 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
         animation: true,
       });
       this.state.graphUpdate = false;
+      if (showProjectPath !== null) {
+        history.push(showProjectPath);
+        this.state.showProjectPath = null;
+      }
     }
   }
 
@@ -554,6 +561,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
 Graph.propTypes = {
   match: PropTypes.object,
+  history: PropTypes.object,
 };
 
 export default Graph;

@@ -51,6 +51,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     moreProjectNodes: [],
     moreProjectEdges: [],
     moreTagNode: {},
+    graphUpdate: true,
   }
 
   componentDidMount() {
@@ -289,6 +290,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     const { nodes, edges } = this.state;
     let { selectedTagNodes, selectedProjectNodes } = this.state;
     const { nodes: selectedNodes } = params;
+    if (selectedNodes.length === 1) this.state.graphUpdate = true;
     // Add tag nodes if 'More Tags' is selected
     if (selectedNodes.length === 1 && selectedNodes[0] === 'More_Tags') {
       const newTagNodesData = this.pickTagNodes(2);
@@ -408,12 +410,15 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   graphStabilized() {
-    const { network, selectedTagNodes, selectedProjectNodes, moreTagNode } = this.state;
+    const { network, selectedTagNodes, selectedProjectNodes, moreTagNode, graphUpdate } = this.state;
     const allTagNodesId = [...selectedTagNodes, ...selectedProjectNodes, moreTagNode].map((data) => data.id);
-    network.fit({
-      nodes: allTagNodesId,
-      animation: true,
-    });
+    if (graphUpdate) {
+      network.fit({
+        nodes: allTagNodesId,
+        animation: true,
+      });
+      this.state.graphUpdate = false;
+    }
   }
 
   openCluster(params) {

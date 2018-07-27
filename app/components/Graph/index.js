@@ -39,7 +39,7 @@ HoverLayout.propTypes = {
 class Graph extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   state = {
     targetNode: this.props.match.url,
-    showProjectPath: null,
+    showTargetPath: null,
     existProjectIds: {},
     network: null,
     nodes: null,
@@ -342,7 +342,9 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   showTagNode(nodeId) {
+    const tagKey = nodeId.replace(/^Tag_/, '');
     this.swapTagNode(nodeId, 0);
+    this.state.showTargetPath = `/tag/${tagKey}`;
   }
 
   showProjectNode(nodeId) {
@@ -355,7 +357,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     const tagNode = this.pickTagNodes(1);
     const projectNode = this.createProjectNodes(tagNode, 1, [projectKey]);
     const showTag = tagList.length;
-    this.state.showProjectPath = `/project/${projectKey}`;
+    this.state.showTargetPath = `/project/${projectKey}`;
     return { showTag, projectNode };
   }
 
@@ -421,7 +423,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
   graphStabilized() {
     const { history } = this.props;
-    const { network, selectedTagNodes, selectedProjectNodes, moreTagNode, graphUpdate, showProjectPath } = this.state;
+    const { network, selectedTagNodes, selectedProjectNodes, moreTagNode, graphUpdate, showTargetPath } = this.state;
     const allTagNodesId = [...selectedTagNodes, ...selectedProjectNodes, moreTagNode].map((data) => data.id);
     if (graphUpdate) {
       network.fit({
@@ -429,9 +431,9 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
         animation: true,
       });
       this.state.graphUpdate = false;
-      if (showProjectPath !== null) {
-        history.push(showProjectPath);
-        this.state.showProjectPath = null;
+      if (showTargetPath !== null) {
+        history.push(showTargetPath);
+        this.state.showTargetPath = null;
       }
     }
   }

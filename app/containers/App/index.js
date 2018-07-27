@@ -54,10 +54,9 @@ export default function App() {
       </Helmet>
       <Route component={Header} />
       <Grid container justify="center" style={styles.mainApp}>
-        <Route path="/*" component={HomePage} />
+        <Route exact path="/project/:projectKey" component={ProjectDetails} />
         <Switch>
-          <Route exact path="/" />
-          <Route exact path="/project/:projectKey" component={ProjectDetails} />
+          <Route path="/*" component={HomePage} />
           <Route exact path="/searchResult" component={SearchResultContainer} />
           <Route component={NotFoundPage} />
         </Switch>

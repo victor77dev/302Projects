@@ -149,8 +149,8 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
               projectKey: projectId,
               label: name,
               title: hoverLayout,
-              x: 300,
-              y: 300,
+              // x: 300,
+              // y: 300,
               fixed: {
                 // x: true,
                 // y: true,

@@ -526,6 +526,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     const container = document.getElementById('projectGraph');
 
     network = new vis.Network(container, data, graphOptions);
+    network.moveTo({ position: { x: 0, y: 0 } });
     this.state.network = network;
 
     network.on('click', this.graphOnClick.bind(this));

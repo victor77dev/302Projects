@@ -38,7 +38,7 @@ HoverLayout.propTypes = {
 
 class Graph extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   state = {
-    version: this.props.match.path,
+    targetNode: this.props.match.url,
     existProjectIds: {},
     network: null,
     nodes: null,
@@ -55,7 +55,15 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   componentDidMount() {
-    this.draw();
+    const { tags, projects } = projectData;
+    const { targetNode } = this.state;
+    const pathData = targetNode.split('/');
+    const type = (pathData[1] === 'project' || pathData[1] === 'tag') ? pathData[1] : null;
+    const tempTarget = pathData[2];
+    const isTagKey = Object.keys(tags).map((index) => tags[index].tag).indexOf(tempTarget) !== -1;
+    const isProjectKey = Object.keys(projects).indexOf(tempTarget) !== -1;
+    const target = (type === 'tag' && isTagKey) || (type === 'project' && isProjectKey) ? tempTarget : null;
+    this.draw(type, target);
   }
 
   shuffleArray(array) {
@@ -430,7 +438,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     }
   }
 
-  draw() {
+  draw(type = null, target = null) {
     // Graph styles
     const graphOptions = {
       autoResize: true,
@@ -513,7 +521,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     let { network, nodes, edges } = this.state;
     this.state.allTagNodes = this.createTagNodes();
 
-    const nodesEdges = this.createNodesEdges();
+    const nodesEdges = this.createNodesEdges(type, target);
     nodes = nodesEdges.nodes;
     edges = nodesEdges.edges;
     this.state.nodes = nodes;

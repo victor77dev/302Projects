@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import IconButton from '@material-ui/core/IconButton';
@@ -38,6 +39,7 @@ const styles = (theme) => ({
   textCen: {
     textAlign: 'center',
     color: grey['300'],
+    display: 'block',
     margin: theme.spacing.unit,
   },
   textLef: {
@@ -45,25 +47,38 @@ const styles = (theme) => ({
     color: grey['400'],
     margin: theme.spacing.unit,
   },
-  button: {
+  closeButton: {
     float: 'right',
+    margin: theme.spacing.unit,
+  },
+  tag: {
     margin: theme.spacing.unit,
   },
 });
 
 const DetailCard = (props) => {
-  const { projectDetail, show, classes, closeDetail } = props;
+  const { projectDetail, show, classes, closeDetail, goToLink } = props;
   const { codeUrl, demoUrl, blogUrl, description, name, documentUrl } = projectDetail;
+  const { tags } = projectDetail;
+  const tagList = tags.map((tagKey) => {
+    const clickTag = goToLink.bind(this, `/tag/${tagKey}`);
+    return (
+      <Button key={tagKey} variant="contained" color="primary" className={classes.tag} onClick={clickTag}>
+        {tagKey}
+      </Button>
+    );
+  });
   if (!show) return null;
   return (
     <Card className={classes.overlay}>
       <Card className={classes.overlayDetail}>
-        <IconButton className={classes.button} aria-label="Close" onClick={closeDetail}>
+        <IconButton className={classes.closeButton} aria-label="Close" onClick={closeDetail}>
           <CloseIcon />
         </IconButton>
         <Typography variant="display3" component="h1" className={classes.textCen}>
           {name}
         </Typography>
+        {tagList}
         <Typography variant="headline" component="h3" className={classes.textLef}>
           {description}
         </Typography>
@@ -89,6 +104,7 @@ DetailCard.propTypes = {
   show: PropTypes.bool,
   closeDetail: PropTypes.func,
   classes: PropTypes.object,
+  goToLink: PropTypes.func,
 };
 
 class ProjectDetails extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
@@ -100,6 +116,11 @@ class ProjectDetails extends React.PureComponent { // eslint-disable-line react/
     this.setState({ showDetail: false });
   }
 
+  goToLink = (link) => {
+    const { history } = this.props;
+    history.push(link);
+  }
+
   render() {
     const { projects } = projectData;
     const { classes, match } = this.props;
@@ -107,7 +128,13 @@ class ProjectDetails extends React.PureComponent { // eslint-disable-line react/
     const { projectKey } = match.params;
     if (Object.keys(projects).indexOf(projectKey) !== -1) {
       return (
-        <DetailCard projectDetail={projects[projectKey]} show={showDetail} closeDetail={this.closeDetail} classes={classes} />
+        <DetailCard
+          projectDetail={projects[projectKey]}
+          show={showDetail}
+          closeDetail={this.closeDetail}
+          goToLink={this.goToLink}
+          classes={classes}
+        />
       );
     }
     return null;
@@ -117,6 +144,7 @@ class ProjectDetails extends React.PureComponent { // eslint-disable-line react/
 ProjectDetails.propTypes = {
   match: PropTypes.object,
   classes: PropTypes.object,
+  history: PropTypes.object,
 };
 
 export default withStyles(styles)(ProjectDetails);

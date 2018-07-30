@@ -12,6 +12,8 @@ import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
 import projectData from '../Graph/projectsAllData.json';
 
 const styles = (theme) => ({
@@ -25,13 +27,12 @@ const styles = (theme) => ({
   },
   overlayDetail: {
     width: '60%',
-    height: '60%',
     top: '50%',
     left: '50%',
     position: 'absolute',
     transform: 'translate(-50%, -50%)',
     backgroundColor: 'rgba(150,150,150,0.7)',
-    zIndex: 0,
+    zIndex: 4,
     textAlign: 'center',
   },
   textCen: {
@@ -44,6 +45,10 @@ const styles = (theme) => ({
     color: grey['400'],
     margin: theme.spacing.unit,
   },
+  button: {
+    float: 'right',
+    margin: theme.spacing.unit,
+  },
 });
 
 const DetailCard = (props) => {
@@ -51,12 +56,15 @@ const DetailCard = (props) => {
   const { codeUrl, demoUrl, blogUrl, description, name, documentUrl } = projectDetail;
   if (!show) return null;
   return (
-    <Card className={classes.overlay} onClick={closeDetail}>
+    <Card className={classes.overlay}>
       <Card className={classes.overlayDetail}>
+        <IconButton className={classes.button} aria-label="Close" onClick={closeDetail}>
+          <CloseIcon />
+        </IconButton>
         <Typography variant="display3" component="h1" className={classes.textCen}>
           {name}
         </Typography>
-        <Typography variant="headline" component="h3" className={classes.textCen}>
+        <Typography variant="headline" component="h3" className={classes.textLef}>
           {description}
         </Typography>
         {demoUrl && <Typography variant="headline" component="h3" className={classes.textLef}>
@@ -97,9 +105,13 @@ class ProjectDetails extends React.PureComponent { // eslint-disable-line react/
     const { classes, match } = this.props;
     const { showDetail } = this.state;
     const { projectKey } = match.params;
-    return (
-      <DetailCard projectDetail={projects[projectKey]} show={showDetail} closeDetail={this.closeDetail} classes={classes} />
-    );
+    if (Object.keys(projects).indexOf(projectKey) !== -1) {
+      return (
+        <DetailCard projectDetail={projects[projectKey]} show={showDetail} closeDetail={this.closeDetail} classes={classes} />
+      );
+    } else {
+      return null;
+    }
   }
 }
 

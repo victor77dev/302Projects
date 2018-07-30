@@ -54,11 +54,11 @@ export default function App() {
       </Helmet>
       <Route component={Header} />
       <Grid container justify="center" style={styles.mainApp}>
+        <Route exact path="/NotFound/:type" component={NotFoundPage} />
         <Route exact path="/project/:projectKey" component={ProjectDetails} />
         <Switch>
           <Route path="/*" component={HomePage} />
           <Route exact path="/searchResult" component={SearchResultContainer} />
-          <Route component={NotFoundPage} />
         </Switch>
       </Grid>
       <Route component={Footer} />

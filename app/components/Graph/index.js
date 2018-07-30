@@ -73,8 +73,16 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.match.url === '/') {
-      this.draw(null, null);
+    const { tags, projects } = projectData;
+    if (newProps.match.url !== this.props.match.url) {
+      const newTargetNode = newProps.match.url;
+      const pathData = newTargetNode.split('/');
+      const type = (pathData[1] === 'project' || pathData[1] === 'tag') ? pathData[1] : null;
+      const tempTarget = pathData[2];
+      const isTagKey = Object.keys(tags).map((index) => tags[index].tag).indexOf(tempTarget) !== -1;
+      const isProjectKey = Object.keys(projects).indexOf(tempTarget) !== -1;
+      const target = (type === 'tag' && isTagKey) || (type === 'project' && isProjectKey) ? tempTarget : null;
+      this.createNodesEdges(type, target);
       this.state.graphUpdate = true;
     }
   }
@@ -374,6 +382,10 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   createNodesEdges(type = null, target = null) {
+    const { curType, curTarget } = this.state;
+    if (type === curType && target === curTarget) return null;
+    this.state.curTarget = target;
+    this.state.curType = type;
     let { moreTagNode, selectedTagNodes, selectedProjectNodes } = this.state;
     let { nodes, edges } = this.state;
     let projectNode = {};

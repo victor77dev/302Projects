@@ -57,6 +57,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
   componentDidMount() {
     const { tags, projects } = projectData;
+    const { history } = this.props;
     const { targetNode } = this.state;
     const pathData = targetNode.split('/');
     const type = (pathData[1] === 'project' || pathData[1] === 'tag') ? pathData[1] : null;
@@ -64,7 +65,18 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     const isTagKey = Object.keys(tags).map((index) => tags[index].tag).indexOf(tempTarget) !== -1;
     const isProjectKey = Object.keys(projects).indexOf(tempTarget) !== -1;
     const target = (type === 'tag' && isTagKey) || (type === 'project' && isProjectKey) ? tempTarget : null;
+    // Go back to home if it is going to invalid page
+    if (targetNode !== '/' && type === null) history.push('/');
+    // Go back to NotFound page and show home page if no project or tag is found
+    if (targetNode !== '/' && type !== null && target === null) history.push(`/NotFound/${type}`);
     this.draw(type, target);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.match.url === '/') {
+      this.draw(null, null);
+      this.state.graphUpdate = true;
+    }
   }
 
   shuffleArray(array) {

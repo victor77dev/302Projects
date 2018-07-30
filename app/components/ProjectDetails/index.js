@@ -109,9 +109,8 @@ class ProjectDetails extends React.PureComponent { // eslint-disable-line react/
       return (
         <DetailCard projectDetail={projects[projectKey]} show={showDetail} closeDetail={this.closeDetail} classes={classes} />
       );
-    } else {
-      return null;
     }
+    return null;
   }
 }
 

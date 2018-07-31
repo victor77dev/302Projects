@@ -6,9 +6,10 @@
 
 import {
   UPDATE_TEXT,
-  SEARCH_PAPER,
-  SEARCH_LOADED,
-  SEARCH_ERROR,
+  SET_TARGET,
+  GET_DATA,
+  GET_DATA_LOADED,
+  GET_DATA_ERROR,
 } from './constants';
 
 export function updateText(text) {
@@ -18,23 +19,30 @@ export function updateText(text) {
   };
 }
 
-export function searchPaper(text) {
+export function setSearchTarget(target) {
   return {
-    type: SEARCH_PAPER,
+    type: SET_TARGET,
+    target,
+  };
+}
+
+export function getData(text) {
+  return {
+    type: GET_DATA,
     text,
   };
 }
 
-export function searchLoaded(result) {
+export function getDataLoaded(result) {
   return {
-    type: SEARCH_LOADED,
+    type: GET_DATA_LOADED,
     result,
   };
 }
 
-export function searchError(error) {
+export function getDataError(error) {
   return {
-    type: SEARCH_ERROR,
+    type: GET_DATA_ERROR,
     error,
   };
 }

@@ -75,6 +75,11 @@ export class NotFound extends React.PureComponent { // eslint-disable-line react
               Want to Create / Submit a new project?
             </Typography>
           }
+          {type === 'data' &&
+            <Typography variant="display3" component="h3" className={classes.textCen}>
+              Error! Failed to load project data! Please Try again later!
+            </Typography>
+          }
         </Card>
       );
     }

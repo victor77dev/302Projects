@@ -1,27 +1,22 @@
 import axios from 'axios';
 import { takeLatest, call, put } from 'redux-saga/effects';
-import { searchLoaded, searchError } from 'containers/SearchBoxContainer/actions';
-import { SEARCH_PAPER } from 'containers/SearchBoxContainer/constants';
+import { getDataLoaded, getDataError } from 'containers/SearchBoxContainer/actions';
+import { GET_DATA } from 'containers/SearchBoxContainer/constants';
 
 // const config = require('../config.json')
-const apiUrl = 'http://localhost:4000';
+const apiUrl = 'https://victor77dev.github.io/projects-data';
 
-export function* searchPaper(action) {
-  const text = action.text;
+export function* getData() {
   try {
-    // Call searchPaper api
-    const search = yield call(axios.get, `${apiUrl}/searchPaper`, {
-      params: {
-        search: text,
-      },
-    });
+    // Get project data
+    const project = yield call(axios.get, `${apiUrl}/projectsAllData.json`);
     // Put return value to searchResult
-    yield put(searchLoaded(search.data));
+    yield put(getDataLoaded(project.data));
   } catch (err) {
-    yield put(searchError(err));
+    yield put(getDataError(err));
   }
 }
 
 export default function* searchBoxSaga() {
-  yield takeLatest(SEARCH_PAPER, searchPaper);
+  yield takeLatest(GET_DATA, getData);
 }

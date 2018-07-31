@@ -5,6 +5,7 @@
  */
 
 export const UPDATE_TEXT = 'app/SearchBoxContainer/UPDATE_TEXT';
-export const SEARCH_PAPER = 'app/SearchBoxContainer/SEARCH_PAPER';
-export const SEARCH_LOADED = 'app/SearchBoxContainer/SEARCH_LOADED';
-export const SEARCH_ERROR = 'app/SearchBoxContainer/SEARCH_ERROR';
+export const SET_TARGET = 'app/SearchBoxContainer/SET_TARGET';
+export const GET_DATA = 'app/SearchBoxContainer/GET_DATA';
+export const GET_DATA_LOADED = 'app/SearchBoxContainer/GET_DATA_LOADED';
+export const GET_DATA_ERROR = 'app/SearchBoxContainer/GET_DATA_ERROR';

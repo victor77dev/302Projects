@@ -14,21 +14,49 @@ import injectSaga from 'utils/injectSaga';
 import injectReducer from 'utils/injectReducer';
 import SearchBox from 'components/SearchBox';
 
-import { makeSelectSearchBoxText } from './selectors';
-import { updateText, searchPaper } from './actions';
+import { makeSelectSearchBoxText, makeSelectSearchResult, makeSelectSearchTarget } from './selectors';
+import { updateText, getData, setSearchTarget } from './actions';
 import reducer from './reducer';
 import saga from './saga';
 
 export class SearchBoxContainer extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+  constructor(props) {
+    super(props);
+    const { callGetData, text } = props;
+    callGetData(text);
+  }
+
+  componentWillUpdate(nextProps) {
+    const { history, projectData, searchTarget, callSetSearchTarget } = nextProps;
+    if (searchTarget === null) return null;
+    if (projectData === null) return history.push('/NotFound/data');
+    const { tags, projects } = projectData;
+    const isTagKey = Object.keys(tags).map((index) => tags[index].tag).indexOf(searchTarget) !== -1;
+    const projectKeyList = Object.keys(projects).reduce((list, key) => {
+      if (key.indexOf(searchTarget) !== -1) {
+        list.push(key);
+      }
+      return list;
+    }, []);
+
+    const isProjectKey = projectKeyList.length > 0;
+    const key = searchTarget;
+    if (isProjectKey) return history.push(`/project/${key}`);
+    if (isTagKey) return history.push(`/tag/${key}`);
+    if (!isProjectKey && !isTagKey) {
+      callSetSearchTarget(null);
+      return history.push('/NotFound/project');
+    }
+    return true;
+  }
+
   onChange = this.props.onChangeText;
   onKeyPress = (event) => {
-    const { history, callSearchPaper, text } = this.props;
+    const { text, callSetSearchTarget } = this.props;
     if (event.key === 'Enter') {
-      callSearchPaper(text);
-      if (history) {
-        history.push(`/searchResult/${text}`);
-      }
+      return callSetSearchTarget(text);
     }
+    return false;
   }
 
   render() {
@@ -41,14 +69,18 @@ export class SearchBoxContainer extends React.PureComponent { // eslint-disable-
 
 SearchBoxContainer.propTypes = {
   onChangeText: PropTypes.func.isRequired,
-  callSearchPaper: PropTypes.func.isRequired,
+  callGetData: PropTypes.func.isRequired,
+  callSetSearchTarget: PropTypes.func.isRequired,
   theme: PropTypes.object.isRequired,
   history: PropTypes.object,
   text: PropTypes.string,
+  projectData: PropTypes.object,
 };
 
 const mapStateToProps = createStructuredSelector({
   text: makeSelectSearchBoxText(),
+  projectData: makeSelectSearchResult(),
+  searchTarget: makeSelectSearchTarget(),
 });
 
 function mapDispatchToProps(dispatch) {
@@ -56,8 +88,11 @@ function mapDispatchToProps(dispatch) {
     onChangeText: (event) => {
       dispatch(updateText(event.target.value));
     },
-    callSearchPaper: (text) => {
-      dispatch(searchPaper(text));
+    callGetData: (text) => {
+      dispatch(getData(text));
+    },
+    callSetSearchTarget: (target) => {
+      dispatch(setSearchTarget(target));
     },
   };
 }

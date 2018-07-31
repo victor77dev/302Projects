@@ -7,12 +7,14 @@
 import { fromJS } from 'immutable';
 import {
   UPDATE_TEXT,
-  SEARCH_LOADED,
-  SEARCH_ERROR,
+  SET_TARGET,
+  GET_DATA_LOADED,
+  GET_DATA_ERROR,
 } from './constants';
 
 const initialState = fromJS({
   text: '',
+  searchTarget: null,
   searchResult: null,
   searchError: null,
 });
@@ -22,10 +24,13 @@ function searchBoxContainerReducer(state = initialState, action) {
     case UPDATE_TEXT:
       return state
         .set('text', action.text);
-    case SEARCH_LOADED:
+    case SET_TARGET:
+      return state
+        .set('searchTarget', action.target);
+    case GET_DATA_LOADED:
       return state
         .set('searchResult', action.result);
-    case SEARCH_ERROR:
+    case GET_DATA_ERROR:
       return state
         .set('searchResult', null)
         .set('searchError', action.error);

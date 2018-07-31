@@ -18,7 +18,6 @@ import { Switch, Route } from 'react-router-dom';
 
 import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
-import SearchResultContainer from 'containers/SearchResultContainer/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
 import ProjectDetails from 'components/ProjectDetails';
@@ -58,7 +57,6 @@ export default function App() {
         <Route exact path="/project/:projectKey" component={ProjectDetails} />
         <Switch>
           <Route path="/*" component={HomePage} />
-          <Route exact path="/searchResult" component={SearchResultContainer} />
         </Switch>
       </Grid>
       <Route component={Footer} />

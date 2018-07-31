@@ -82,16 +82,16 @@ const DetailCard = (props) => {
           {description}
         </Typography>
         {demoUrl && <Typography variant="headline" component="h3" className={classes.textLef}>
-          Demo: {demoUrl}
+          Demo: <a href={`http://${demoUrl}`}>{demoUrl}</a>
         </Typography>}
         {codeUrl && <Typography variant="headline" component="h3" className={classes.textLef}>
-          Code: {codeUrl}
+          Code: <a href={`http://${codeUrl}`}>{codeUrl}</a>
         </Typography>}
         { blogUrl && <Typography variant="headline" component="h3" className={classes.textLef}>
-          Blog: {blogUrl}
+          Blog: <a href={`http://${blogUrl}`}>{blogUrl}</a>
         </Typography> }
         { documentUrl && <Typography variant="headline" component="h3" className={classes.textLef}>
-          Document: {documentUrl}
+          Document: <a href={`http://${documentUrl}`}>{documentUrl}</a>
         </Typography> }
       </Card>
     </Card>

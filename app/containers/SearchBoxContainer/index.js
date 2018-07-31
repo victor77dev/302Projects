@@ -31,22 +31,15 @@ export class SearchBoxContainer extends React.PureComponent { // eslint-disable-
     if (searchTarget === null) return null;
     if (projectData === null) return history.push('/NotFound/data');
     const { tags, projects } = projectData;
-    const isTagKey = Object.keys(tags).map((index) => tags[index].tag).indexOf(searchTarget) !== -1;
-    const projectKeyList = Object.keys(projects).reduce((list, key) => {
-      if (key.indexOf(searchTarget) !== -1) {
-        list.push(key);
-      }
-      return list;
-    }, []);
+    const tagKeyList = this.getSimilarList(Object.keys(tags).map((index) => tags[index].tag), searchTarget);
+    const projectKeyList = this.getSimilarList(Object.keys(projects), searchTarget);
 
+    const isTagKey = tagKeyList.length > 0;
     const isProjectKey = projectKeyList.length > 0;
-    const key = searchTarget;
-    if (isProjectKey) return history.push(`/project/${key}`);
-    if (isTagKey) return history.push(`/tag/${key}`);
-    if (!isProjectKey && !isTagKey) {
-      callSetSearchTarget(null);
-      return history.push('/NotFound/project');
-    }
+    callSetSearchTarget(null);
+    if (isTagKey) return history.push(`/tag/${tagKeyList[0]}`);
+    if (isProjectKey) return history.push(`/project/${projectKeyList[0]}`);
+    if (!isProjectKey && !isTagKey) return history.push('/NotFound/project');
     return true;
   }
 
@@ -57,6 +50,18 @@ export class SearchBoxContainer extends React.PureComponent { // eslint-disable-
       return callSetSearchTarget(text);
     }
     return false;
+  }
+
+  getSimilarList(inputList, target) {
+    return inputList.reduce((list, key) => {
+      const ignoreRegex = new RegExp('[-_ ]', 'g');
+      const formatKey = key.replace(ignoreRegex, '').toUpperCase();
+      const formatTarget = target.replace(ignoreRegex, '').toUpperCase();
+      if (formatKey.indexOf(formatTarget) !== -1) {
+        list.push(key);
+      }
+      return list;
+    }, []);
   }
 
   render() {

@@ -53,6 +53,8 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     moreProjectEdges: [],
     moreTagNode: {},
     graphUpdate: true,
+    curTargets: null,
+    curType: null,
   }
 
   componentDidMount() {
@@ -69,7 +71,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     if (targetNode !== '/' && type === null) history.push('/');
     // Go back to NotFound page and show home page if no project or tag is found
     if (targetNode !== '/' && type !== null && target === null) history.push(`/NotFound/${type}`);
-    this.draw(type, target);
+    this.draw(type, target === null ? null : [target]);
   }
 
   componentWillReceiveProps(newProps) {
@@ -82,7 +84,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
       const isTagKey = Object.keys(tags).map((index) => tags[index].tag).indexOf(tempTarget) !== -1;
       const isProjectKey = Object.keys(projects).indexOf(tempTarget) !== -1;
       const target = (type === 'tag' && isTagKey) || (type === 'project' && isProjectKey) ? tempTarget : null;
-      this.createNodesEdges(type, target);
+      this.createNodesEdges(type, target === null ? null : [target]);
       this.state.graphUpdate = true;
     }
   }
@@ -341,10 +343,10 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
       this.addMoreProjectNodes(selectedNodes[0]);
     }
     if (selectedNodes.length === 1 && selectedNodes[0].match(/^Project_/)) {
-      this.createNodesEdges('project', selectedNodes[0].replace(/^Project_/, ''));
+      this.createNodesEdges('project', [selectedNodes[0].replace(/^Project_/, '')]);
     }
     if (selectedNodes.length === 1 && selectedNodes[0].match(/^Tag_/)) {
-      this.createNodesEdges('tag', selectedNodes[0].replace(/^Tag_/, ''));
+      this.createNodesEdges('tag', [selectedNodes[0].replace(/^Tag_/, '')]);
     }
   }
 
@@ -361,34 +363,47 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     this.state.allTagNodes = allTagNodes;
   }
 
-  showTagNode(nodeId) {
-    const tagKey = nodeId.replace(/^Tag_/, '');
-    this.swapTagNode(nodeId, 0);
-    this.state.showTargetPath = `/tag/${tagKey}`;
-  }
-
-  showProjectNode(nodeId) {
-    const { projects } = projectData;
-    const projectKey = nodeId.replace(/^Project_/, '');
-    const tagList = projects[projectKey].tags;
-    tagList.forEach((tagKey, index) => {
-      this.swapTagNode(`Tag_${tagKey}`, index);
+  showTagNode(nodeIdList) {
+    nodeIdList.forEach((nodeId, index) => {
+      const tagKey = nodeId.replace(/^Tag_/, '');
+      this.swapTagNode(nodeId, index);
+      this.state.showTargetPath = `/tag/${tagKey}`;
     });
-    const tagNode = this.pickTagNodes(1);
-    const projectNode = this.createProjectNodes(tagNode, 1, [projectKey]);
-    const showTag = tagList.length;
-    this.state.showTargetPath = `/project/${projectKey}`;
-    return { showTag, projectNode };
   }
 
-  createNodesEdges(type = null, target = null) {
-    const { curType, curTarget } = this.state;
-    if (type === curType && target === curTarget) return null;
-    this.state.curTarget = target;
+  showProjectNode(nodeIdList) {
+    const { projects } = projectData;
+    let projectKeyString = '/project';
+    let projectNodeList = [];
+    let allTagList = [];
+    let tagIndex = 0;
+    nodeIdList.forEach((nodeId) => {
+      const projectKey = nodeId.replace(/^Project_/, '');
+      const tagList = projects[projectKey].tags;
+      allTagList = [...new Set(allTagList.concat(...tagList))];
+      tagList.forEach((tagKey) => {
+        this.swapTagNode(`Tag_${tagKey}`, tagIndex);
+        tagIndex += 1;
+      });
+      const tagNode = this.pickTagNodes(1);
+      const projectNode = this.createProjectNodes(tagNode, 1, [projectKey]);
+      projectKeyString = `${projectKeyString}/${projectKey}`;
+      projectNodeList = [...projectNodeList, ...projectNode];
+    });
+    const showTag = allTagList.length;
+    this.state.showTargetPath = projectKeyString;
+    return { showTag, projectNodes: projectNodeList };
+  }
+
+  createNodesEdges(type = null, targets = null) {
+    const { curType, curTargets } = this.state;
+    const sameTargets = (curTargets !== null && targets !== null) && targets.every((target, index) => curTargets[index] === target);
+    if (type === curType && sameTargets) return null;
+    this.state.curTargets = targets;
     this.state.curType = type;
     let { moreTagNode, selectedTagNodes, selectedProjectNodes } = this.state;
     let { nodes, edges } = this.state;
-    let projectNode = {};
+    let projectNodes = null;
     let showTag = 7;
     let showProject = 7;
     // Pick tag nodes
@@ -404,15 +419,17 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     if (nodes) nodes.clear();
     if (edges) edges.clear();
 
-    if (target !== null && type !== null) {
+    if (targets !== null && type !== null) {
       if (type === 'tag') {
-        this.showTagNode(`Tag_${target}`);
-        showTag = 1;
-        showProject = 20;
+        const targetList = targets.map((key) => (`Tag_${key}`));
+        this.showTagNode(targetList);
+        showTag = Math.min(targetList.length, 5);
+        showProject = 10;
       } else if (type === 'project') {
-        const targetProjectNode = this.showProjectNode(`Project_${target}`);
-        projectNode = targetProjectNode.projectNode;
-        showTag = targetProjectNode.showTag;
+        const targetList = targets.map((key) => (`Project_${key}`));
+        const targetProjectNode = this.showProjectNode(targetList);
+        projectNodes = targetProjectNode.projectNodes;
+        showTag = Math.min(targetProjectNode.showTag, 20);
         showProject = 0;
       }
     }
@@ -427,7 +444,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
     let nodesArray = [...selectedProjectNodes, ...selectedTagNodes, moreTagNode];
     if (!nodes) nodesArray = [...nodesArray, ...this.state.moreProjectNodes];
-    if (projectNode) nodesArray = [...nodesArray, ...projectNode];
+    if (projectNodes) nodesArray = [...nodesArray, ...projectNodes];
     // Create edges
     let edgesArray = [...this.createEdges(selectedTagNodes, selectedProjectNodes)];
     if (!edges) edgesArray = [...edgesArray, ...this.state.moreProjectEdges];

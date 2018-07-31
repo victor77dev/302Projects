@@ -8,10 +8,10 @@ import { defineMessages } from 'react-intl';
 export default defineMessages({
   header: {
     id: 'app.components.HomePage.header',
-    defaultMessage: 'Welcome to 302 Projects!',
+    defaultMessage: 'Welcome to 302 Projects (Found Projects)!',
   },
   content: {
     id: 'app.components.HomePage.content',
-    defaultMessage: 'You can search Found Projects up there!',
+    defaultMessage: 'Search for Existing Projects and Found out Related Projects and Tags!',
   },
 });

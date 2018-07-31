@@ -8,6 +8,6 @@ import { defineMessages } from 'react-intl';
 export default defineMessages({
   placeHolder: {
     id: 'app.components.SearchBox.placeHolder',
-    defaultMessage: 'Search Paper with Title, Authors or Keywords',
+    defaultMessage: 'Search for Project or Tag',
   },
 });

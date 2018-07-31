@@ -11,14 +11,19 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
+import { compose } from 'redux';
 import { FormattedMessage } from 'react-intl';
 import Graph from 'components/Graph';
 
+import { makeSelectSearchResult } from 'containers/SearchBoxContainer/selectors';
+
 import messages from './messages';
 
-export default class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
+export class HomePage extends React.PureComponent { // eslint-disable-line react/prefer-stateless-function
   render() {
-    const { match, history } = this.props;
+    const { match, history, projectData } = this.props;
     return (
       <div style={{ width: '100%', height: '100%' }}>
         <h1>
@@ -27,7 +32,7 @@ export default class HomePage extends React.PureComponent { // eslint-disable-li
         <h4>
           <FormattedMessage {...messages.content} />
         </h4>
-        <Graph match={match} history={history} />
+        <Graph match={match} history={history} projectData={projectData} />
       </div>
     );
   }
@@ -36,4 +41,15 @@ export default class HomePage extends React.PureComponent { // eslint-disable-li
 HomePage.propTypes = {
   match: PropTypes.object,
   history: PropTypes.object,
+  projectData: PropTypes.object,
 };
+
+const mapStateToProps = createStructuredSelector({
+  projectData: makeSelectSearchResult(),
+});
+
+const withConnect = connect(mapStateToProps);
+
+export default compose(
+  withConnect,
+)(HomePage);

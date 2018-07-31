@@ -20,7 +20,7 @@ import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
-import ProjectDetails from 'components/ProjectDetails';
+import ProjectDetailsContainer from 'containers/ProjectDetailsContainer/Loadable';
 
 import Grid from '@material-ui/core/Grid';
 
@@ -54,7 +54,7 @@ export default function App() {
       <Route component={Header} />
       <Grid container justify="center" style={styles.mainApp}>
         <Route exact path="/NotFound/:type" component={NotFoundPage} />
-        <Route exact path="/project/:projectKey" component={ProjectDetails} />
+        <Route exact path="/project/:projectKey" component={ProjectDetailsContainer} />
         <Switch>
           <Route path="/*" component={HomePage} />
         </Switch>

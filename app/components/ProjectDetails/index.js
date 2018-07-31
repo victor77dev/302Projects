@@ -15,7 +15,6 @@ import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import projectData from '../Graph/projectsAllData.json';
 
 const styles = (theme) => ({
   overlay: {
@@ -122,8 +121,9 @@ class ProjectDetails extends React.PureComponent { // eslint-disable-line react/
   }
 
   render() {
+    const { classes, match, projectData } = this.props;
+    if (projectData === null) return null;
     const { projects } = projectData;
-    const { classes, match } = this.props;
     const { showDetail } = this.state;
     const { projectKey } = match.params;
     if (Object.keys(projects).indexOf(projectKey) !== -1) {
@@ -145,6 +145,7 @@ ProjectDetails.propTypes = {
   match: PropTypes.object,
   classes: PropTypes.object,
   history: PropTypes.object,
+  projectData: PropTypes.object,
 };
 
 export default withStyles(styles)(ProjectDetails);

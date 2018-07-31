@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 import vis from 'vis';
 import 'vis/dist/vis-network.min.css';
-import projectData from './projectsAllData.json';
 
 const imageImport = require.context('images/react-rocks-all/', false, /\.(png|jpe?g|svg)$/);
 const imageList = imageImport.keys().reduce((list, key) => {
@@ -58,8 +57,9 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   componentDidMount() {
+    const { history, projectData } = this.props;
+    if (projectData === null) return null;
     const { tags, projects } = projectData;
-    const { history } = this.props;
     const { targetNode } = this.state;
     const pathData = targetNode.split('/');
     const type = (pathData[1] === 'project' || pathData[1] === 'tag') ? pathData[1] : null;
@@ -72,9 +72,12 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     // Go back to NotFound page and show home page if no project or tag is found
     if (targetNode !== '/' && type !== null && target === null) history.push(`/NotFound/${type}`);
     this.draw(type, target === null ? null : [target]);
+    return true;
   }
 
   componentWillReceiveProps(newProps) {
+    const { projectData } = this.props;
+    if (projectData === null) return null;
     const { tags, projects } = projectData;
     if (newProps.match.url !== this.props.match.url) {
       const newTargetNode = newProps.match.url;
@@ -87,6 +90,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
       this.createNodesEdges(type, target === null ? null : [target]);
       this.state.graphUpdate = true;
     }
+    return true;
   }
 
   shuffleArray(array) {
@@ -99,6 +103,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
   // Create and shuffle the tag nodes
   createTagNodes() {
+    const { projectData } = this.props;
     const { tags } = projectData;
     const tagNodesArray = Object.keys(tags).map((key) => {
       const curTag = tags[key].tag;
@@ -152,6 +157,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
   // Create and pick project nodes for picked tag nodes
   createProjectNodes(tagNodes, max = 7, specificProjects = []) {
+    const { projectData } = this.props;
     const { tags, projects } = projectData;
     const { existProjectIds, noOfProjects } = this.state;
     const relatedProjectNodes = tagNodes.reduce((projectList, tagNode) => {
@@ -261,6 +267,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   createEdges(tagNodes, projectNodes = []) {
     const { existProjectIds, selectedTagNodes } = this.state;
     let { createdEdgeIds } = this.state;
+    const { projectData } = this.props;
     const { tags, projects } = projectData;
     const existProjectList = Object.keys(existProjectIds);
 
@@ -372,6 +379,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   showProjectNode(nodeIdList) {
+    const { projectData } = this.props;
     const { projects } = projectData;
     let projectKeyString = '/project';
     let projectNodeList = [];
@@ -605,6 +613,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 Graph.propTypes = {
   match: PropTypes.object,
   history: PropTypes.object,
+  projectData: PropTypes.object,
 };
 
 export default Graph;

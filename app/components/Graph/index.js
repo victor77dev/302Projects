@@ -97,9 +97,25 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
   componentWillReceiveProps(newProps) {
     const { projectData } = newProps;
+    const { history } = this.props;
     if (projectData === null) return null;
+
+    const { state } = history.location;
     const { tags, projects } = projectData;
-    if (newProps.match.url !== this.props.match.url) {
+    if (newProps.match.url !== this.props.match.url || (state && state.exact === false)) {
+      // Handle similar Tags / Projects found
+      if (state) {
+        const { exact } = this.props.history.location.state;
+        const { tags: tagList, projects: projectList } = state;
+        if (!exact) {
+          history.push({
+            pathname: '/NotFound/similar',
+            state: { tags: tagList, projects: projectList },
+          });
+          this.state.showTargetPath = null;
+        }
+      }
+      // Handle Page update
       const newTargetNode = newProps.match.url;
       const pathData = newTargetNode.split('/');
       const type = (pathData[1] === 'project' || pathData[1] === 'tag') ? pathData[1] : null;

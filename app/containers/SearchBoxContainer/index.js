@@ -34,11 +34,35 @@ export class SearchBoxContainer extends React.PureComponent { // eslint-disable-
     const tagKeyList = this.getSimilarList(Object.keys(tags).map((index) => tags[index].tag), searchTarget);
     const projectKeyList = this.getSimilarList(Object.keys(projects), searchTarget);
 
-    const isTagKey = tagKeyList.length > 0;
-    const isProjectKey = projectKeyList.length > 0;
+    const isTagKey = tagKeyList.similarList.length > 0;
+    const isProjectKey = projectKeyList.similarList.length > 0;
     callSetSearchTarget(null);
-    if (isTagKey) return history.push(`/tag/${tagKeyList[0]}`);
-    if (isProjectKey) return history.push(`/project/${projectKeyList[0]}`);
+    // If exact Tag / Project found
+    if (projectKeyList.exact !== null) {
+      return history.push({
+        pathname: `/project/${projectKeyList.exact}`,
+        state: { tags: tagKeyList, projects: projectKeyList, exact: true, target: searchTarget },
+      });
+    }
+    if (tagKeyList.exact !== null) {
+      return history.push({
+        pathname: `/tag/${tagKeyList.exact}`,
+        state: { tags: tagKeyList, projects: projectKeyList, exact: true, target: searchTarget },
+      });
+    }
+    // If no exact Tag / Project found
+    if (isTagKey) {
+      return history.push({
+        pathname: `/tag/${tagKeyList.similarList[0]}`,
+        state: { tags: tagKeyList, projects: projectKeyList, exact: false, target: searchTarget },
+      });
+    }
+    if (isProjectKey) {
+      return history.push({
+        pathname: `/project/${projectKeyList.similarList[0]}`,
+        state: { tags: tagKeyList, projects: projectKeyList, exact: false, target: searchTarget },
+      });
+    }
     if (!isProjectKey && !isTagKey) return history.push('/NotFound/project');
     return true;
   }
@@ -53,15 +77,18 @@ export class SearchBoxContainer extends React.PureComponent { // eslint-disable-
   }
 
   getSimilarList(inputList, target) {
-    return inputList.reduce((list, key) => {
+    let exact = null;
+    const similarList = inputList.reduce((list, key) => {
       const ignoreRegex = new RegExp('[-_ ]', 'g');
       const formatKey = key.replace(ignoreRegex, '').toUpperCase();
       const formatTarget = target.replace(ignoreRegex, '').toUpperCase();
+      exact = formatKey === formatTarget ? key : exact;
       if (formatKey.indexOf(formatTarget) !== -1) {
         list.push(key);
       }
       return list;
     }, []);
+    return { similarList, exact };
   }
 
   render() {

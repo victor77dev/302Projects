@@ -14,7 +14,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import styled from 'styled-components';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, HashRouter } from 'react-router-dom';
 
 import HomePage from 'containers/HomePage/Loadable';
 import NotFoundPage from 'containers/NotFoundPage/Loadable';
@@ -51,15 +51,19 @@ export default function App() {
       >
         <meta name="description" content="302 Projects - Found Projects" />
       </Helmet>
-      <Route component={Header} />
-      <Grid container justify="center" style={styles.mainApp}>
-        <Route exact path="/NotFound/:type" component={NotFoundPage} />
-        <Route exact path="/project/:projectKey" component={ProjectDetailsContainer} />
-        <Switch>
-          <Route path="/*" component={HomePage} />
-        </Switch>
-      </Grid>
-      <Route component={Footer} />
+      <HashRouter>
+        <div>
+          <Route component={Header} />
+          <Grid container justify="center" style={styles.mainApp}>
+            <Route exact path="/NotFound/:type" component={NotFoundPage} />
+            <Route exact path="/project/:projectKey" component={ProjectDetailsContainer} />
+            <Switch>
+              <Route path="/*" component={HomePage} />
+            </Switch>
+          </Grid>
+          <Route component={Footer} />
+        </div>
+      </HashRouter>
     </AppWrapper>
   );
 }

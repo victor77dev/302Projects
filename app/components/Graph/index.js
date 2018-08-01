@@ -10,7 +10,10 @@ import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 import vis from 'vis';
 import 'vis/dist/vis-network.min.css';
+import grey from '@material-ui/core/colors/grey';
 
+// const config = require('../config.json')
+const baseDataUrl = 'https://victor77dev.github.io/projects-data';
 const imageImport = require.context('images/react-rocks-all/', false, /\.(png|jpe?g|svg)$/);
 const imageList = imageImport.keys().reduce((list, key) => {
   const updateList = list;
@@ -125,22 +128,18 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
       const hoverLayout = ReactDOMServer.renderToStaticMarkup(<HoverLayout type="Tag" name={curTagName} />);
       return {
         id: `Tag_${curTag}`,
-        group: 'tags',
+        group: 'tag',
         tagId: key,
         tagKey: curTag,
-        shape: 'circle',
-        label: curTagName,
+        shape: 'image',
+        image: `${baseDataUrl}/imageLabel/${curTag}.png`,
         title: hoverLayout,
+        size: 20,
         x: 0,
         y: 0,
         fixed: {
           // x: true,
           // y: true,
-        },
-        scaling: {
-          label: {
-            min: nodeFontSize,
-          },
         },
       };
     });
@@ -185,7 +184,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
             {
               id: `Project_${projectId}`,
               group: 'project',
-              shape: 'image',
+              shape: 'circularImage',
               image,
               projectKey: projectId,
               label: name,
@@ -239,14 +238,9 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     const newNode = {
       id: `More_Projects_Tag_${tagKey}`,
       group: 'moreNode',
-      shape: 'circle',
+      shape: 'circularImage',
+      image: `${baseDataUrl}/imageLabel/Button_more_projects.png`,
       tagKey,
-      label: 'More Projects',
-      scaling: {
-        label: {
-          min: 1,
-        },
-      },
     };
     const newEdge = { id: `MoreProjects_${tagKey}`, from: `More_Projects_Tag_${tagKey}`, to: `Tag_${tagKey}` };
     if (nodes) nodes.add(newNode);
@@ -502,7 +496,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
       autoResize: true,
       nodes: {
         color: {
-          border: '#406897',
+          border: grey[700],
         },
         shapeProperties: {
           useBorderWithImage: true,
@@ -512,41 +506,17 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
       groups: {
         tag: {
           borderWidth: 1,
-          font: {
-            color: '#111111',
-            size: 50,
-          },
-          value: 0,
-          scaling: {
-            label: {
-              enabled: true,
-            },
-          },
         },
         project: {
           borderWidth: 1,
           size: 30,
           font: {
-            color: '#111111',
+            color: grey[200],
           },
         },
         moreNode: {
-          color: {
-            background: 'red',
-            hover: 'red',
-            highlight: 'green',
-          },
           borderWidth: 1,
-          font: {
-            color: 'white',
-            size: 50,
-          },
-          value: 0,
-          scaling: {
-            label: {
-              enabled: true,
-            },
-          },
+          size: 40,
         },
       },
       edges: {
@@ -554,9 +524,9 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
         // arrows: 'to',
         // physics: false,
         color: {
-          color: 'white',
-          hover: 'white',
-          highlight: 'red',
+          color: grey[500],
+          hover: grey[300],
+          highlight: grey[100],
         },
       },
       layout: {
@@ -603,8 +573,9 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
   render() {
     return (
-      <div id="projectGraph" style={{ width: '100%', height: 500, backgroundColor: 'grey' }}>
-        Error!!!!!!!!!!!!!!!!!!!
+      <div id="projectGraph" style={{ width: '100%', height: 500, backgroundColor: grey[600] }}>
+        <h1 style={{ color: 'red' }}>Error!!!</h1>
+        <h1 style={{ color: 'red' }}>Sorry! Please Reload and Try again later!</h1>
       </div>
     );
   }

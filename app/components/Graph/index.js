@@ -96,7 +96,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   componentWillReceiveProps(newProps) {
-    const { projectData } = this.props;
+    const { projectData } = newProps;
     if (projectData === null) return null;
     const { tags, projects } = projectData;
     if (newProps.match.url !== this.props.match.url) {

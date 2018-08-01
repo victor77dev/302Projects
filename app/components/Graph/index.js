@@ -10,7 +10,9 @@ import PropTypes from 'prop-types';
 // import styled from 'styled-components';
 import vis from 'vis';
 import 'vis/dist/vis-network.min.css';
+import { withStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
+import Button from '@material-ui/core/Button';
 
 // const config = require('../config.json')
 const baseDataUrl = 'https://victor77dev.github.io/projects-data';
@@ -21,6 +23,22 @@ const imageList = imageImport.keys().reduce((list, key) => {
   updateList[keyName] = imageImport(key);
   return updateList;
 }, {});
+
+const styles = (theme) => ({
+  graph: {
+    width: '100%',
+    height: 500,
+    position: 'relative',
+    backgroundColor: grey[600],
+  },
+  moreButton: {
+    position: 'absolute',
+    right: 0,
+    top: '50%',
+    transform: 'translate(0%, -50%)',
+    margin: theme.spacing.unit,
+  },
+});
 
 const HoverLayout = (props) => {
   const { type, name, image } = props;
@@ -53,7 +71,6 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     noOfProjects: {},
     moreProjectNodes: [],
     moreProjectEdges: [],
-    moreTagNode: {},
     graphUpdate: true,
     curTargets: null,
     curType: null,
@@ -112,19 +129,6 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
       const curTag = tags[key].tag;
       // TODO: May update tag name for node label
       const curTagName = tags[key].tag;
-      let nodeFontSize = 1;
-      const nameLength = curTagName.length;
-      if (nameLength <= 5) {
-        nodeFontSize = 50;
-      } else if (nameLength > 5 && nameLength <= 6) {
-        nodeFontSize = 30;
-      } else if (nameLength > 6 && nameLength <= 7) {
-        nodeFontSize = 20;
-      } else if (nameLength > 7 && nameLength <= 9) {
-        nodeFontSize = 10;
-      } else if (nameLength >= 10) {
-        nodeFontSize = 1;
-      }
       const hoverLayout = ReactDOMServer.renderToStaticMarkup(<HoverLayout type="Tag" name={curTagName} />);
       return {
         id: `Tag_${curTag}`,
@@ -204,27 +208,6 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
       return updateProjectList;
     }, { exist: existProjectIds, list: [] });
     return relatedProjectNodes.list;
-  }
-
-  // Create 'More Tags' node
-  createMoreTagNode() {
-    return {
-      id: 'More_Tags',
-      group: 'moreNode',
-      shape: 'circle',
-      label: 'More Tags',
-      x: 1000,
-      y: 0,
-      fixed: {
-        x: true,
-        y: true,
-      },
-      scaling: {
-        label: {
-          min: 20,
-        },
-      },
-    };
   }
 
   // Create 'More Projects' node
@@ -318,27 +301,28 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     edges.add(edgesArray);
   }
 
-  graphOnClick = (params) => {
+  addMoreTagNodes = () => {
     const { nodes, edges } = this.state;
     let { selectedTagNodes, selectedProjectNodes } = this.state;
+    const newTagNodesData = this.pickTagNodes(2);
+    const newTagNodes = newTagNodesData;
+    selectedTagNodes = [...selectedTagNodes, ...newTagNodes];
+    this.state.selectedTagNodes = selectedTagNodes;
+    nodes.add(newTagNodes);
+
+    const newSelectedProjectNodes = this.createProjectNodes(newTagNodes);
+    selectedProjectNodes = [...selectedProjectNodes, ...newSelectedProjectNodes];
+    this.state.selectedProjectNodes = selectedProjectNodes;
+    nodes.add(newSelectedProjectNodes);
+    // Create edges
+    const edgesArray = this.createEdges(newTagNodes, newSelectedProjectNodes);
+    edges.add(edgesArray);
+    this.state.graphUpdate = true;
+  }
+
+  graphOnClick = (params) => {
     const { nodes: selectedNodes } = params;
     if (selectedNodes.length === 1) this.state.graphUpdate = true;
-    // Add tag nodes if 'More Tags' is selected
-    if (selectedNodes.length === 1 && selectedNodes[0] === 'More_Tags') {
-      const newTagNodesData = this.pickTagNodes(2);
-      const newTagNodes = newTagNodesData;
-      selectedTagNodes = [...selectedTagNodes, ...newTagNodes];
-      this.state.selectedTagNodes = selectedTagNodes;
-      nodes.add(newTagNodes);
-
-      const newSelectedProjectNodes = this.createProjectNodes(newTagNodes);
-      selectedProjectNodes = [...selectedProjectNodes, ...newSelectedProjectNodes];
-      this.state.selectedProjectNodes = selectedProjectNodes;
-      nodes.add(newSelectedProjectNodes);
-      // Create edges
-      const edgesArray = this.createEdges(newTagNodes, newSelectedProjectNodes);
-      edges.add(edgesArray);
-    }
     // Handle click for 'More Project' Node
     if (selectedNodes.length === 1 && selectedNodes[0].match(/^More_Projects/)) {
       this.addMoreProjectNodes(selectedNodes[0]);
@@ -403,7 +387,7 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     if (type === curType && sameTargets) return null;
     this.state.curTargets = targets;
     this.state.curType = type;
-    let { moreTagNode, selectedTagNodes, selectedProjectNodes } = this.state;
+    let { selectedTagNodes, selectedProjectNodes } = this.state;
     let { nodes, edges } = this.state;
     let projectNodes = null;
     let showTag = 7;
@@ -415,7 +399,6 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
     this.state.selectedProjectNodes = [];
     this.state.createdEdgeIds = [];
     this.state.noOfProjects = {};
-    this.state.moreTagNode = {};
     this.state.moreProjectNodes = [];
     this.state.moreProjectEdges = [];
     if (nodes) nodes.clear();
@@ -441,10 +424,8 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
     selectedProjectNodes = [...this.createProjectNodes(selectedTagNodes, showProject)];
     this.state.selectedProjectNodes = selectedProjectNodes;
-    moreTagNode = this.createMoreTagNode();
-    this.state.moreTagNode = moreTagNode;
 
-    let nodesArray = [...selectedProjectNodes, ...selectedTagNodes, moreTagNode];
+    let nodesArray = [...selectedProjectNodes, ...selectedTagNodes];
     if (!nodes) nodesArray = [...nodesArray, ...this.state.moreProjectNodes];
     if (projectNodes) nodesArray = [...nodesArray, ...projectNodes];
     // Create edges
@@ -466,8 +447,8 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 
   graphStabilized() {
     const { history } = this.props;
-    const { network, selectedTagNodes, selectedProjectNodes, moreTagNode, graphUpdate, showTargetPath } = this.state;
-    const allTagNodesId = [...selectedTagNodes, ...selectedProjectNodes, moreTagNode].map((data) => data.id);
+    const { network, selectedTagNodes, selectedProjectNodes, graphUpdate, showTargetPath } = this.state;
+    const allTagNodesId = [...selectedTagNodes, ...selectedProjectNodes].map((data) => data.id);
     if (graphUpdate) {
       network.fit({
         nodes: allTagNodesId,
@@ -572,10 +553,16 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
   }
 
   render() {
+    const { classes } = this.props;
     return (
-      <div id="projectGraph" style={{ width: '100%', height: 500, backgroundColor: grey[600] }}>
-        <h1 style={{ color: 'red' }}>Error!!!</h1>
-        <h1 style={{ color: 'red' }}>Sorry! Please Reload and Try again later!</h1>
+      <div className={classes.graph}>
+        <div id="projectGraph" className={classes.graph}>
+          <h1 style={{ color: 'red' }}>Error!!!</h1>
+          <h1 style={{ color: 'red' }}>Sorry! Please Reload and Try again later!</h1>
+        </div>
+        <Button variant="extendedFab" color="primary" aria-label="Edit" className={classes.moreButton} onClick={this.addMoreTagNodes}>
+          More Tags
+        </Button>
       </div>
     );
   }
@@ -584,7 +571,8 @@ class Graph extends React.PureComponent { // eslint-disable-line react/prefer-st
 Graph.propTypes = {
   match: PropTypes.object,
   history: PropTypes.object,
+  classes: PropTypes.object,
   projectData: PropTypes.object,
 };
 
-export default Graph;
+export default withStyles(styles)(Graph);

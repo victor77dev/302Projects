@@ -78,16 +78,23 @@ export class SearchBoxContainer extends React.PureComponent { // eslint-disable-
 
   getSimilarList(inputList, target) {
     let exact = null;
+    const ignoreRegex = new RegExp('[-_ ]', 'g');
+    const formatTarget = target.replace(ignoreRegex, '').toUpperCase();
     const similarList = inputList.reduce((list, key) => {
-      const ignoreRegex = new RegExp('[-_ ]', 'g');
       const formatKey = key.replace(ignoreRegex, '').toUpperCase();
-      const formatTarget = target.replace(ignoreRegex, '').toUpperCase();
       exact = formatKey === formatTarget ? key : exact;
       if (formatKey.indexOf(formatTarget) !== -1) {
         list.push(key);
       }
       return list;
     }, []);
+    similarList.sort((str1, str2) => {
+      const formatStr1 = str1.replace(ignoreRegex, '').toUpperCase();
+      const formatStr2 = str2.replace(ignoreRegex, '').toUpperCase();
+      const score1 = (formatStr1.indexOf(formatTarget) * 5) + formatStr1.replace(formatTarget, '').length;
+      const score2 = (formatStr2.indexOf(formatTarget) * 5) + formatStr2.replace(formatTarget, '').length;
+      return score1 > score2;
+    });
     return { similarList, exact };
   }
 

@@ -11,7 +11,7 @@ function Footer() {
         <FormattedMessage
           {...messages.authorMessage}
           values={{
-            author: <p>Victor</p>,
+            author: <a href="https://victor77dev.github.io/">Victor</a>,
           }}
         />
       </section>
